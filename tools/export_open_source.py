@@ -448,11 +448,35 @@ python -m compileall app
 
 ## 许可证
 
-请在正式发布前补充许可证文件，例如 MIT、Apache-2.0 或其他适合你项目的开源协议。
+本项目基于 MIT License 开源，详见 [LICENSE](LICENSE)。
 
 ## 致谢
 
 Poemage 关注“游戏探索行为如何转化为课堂可讲内容”。如果你正在做诗词教育、互动课堂或教育游戏，希望这个项目能提供一个可运行的工程起点。
+'''
+
+
+MIT_LICENSE = '''MIT License
+
+Copyright (c) 2026 veilchow
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 '''
 
 
@@ -554,6 +578,7 @@ def write_examples() -> None:
         newline="\n",
     )
     (DEST / "README.md").write_text(OPEN_README, encoding="utf-8", newline="\n")
+    (DEST / "LICENSE").write_text(MIT_LICENSE, encoding="utf-8", newline="\n")
 
 
 def scan_sensitive_tokens() -> list[str]:

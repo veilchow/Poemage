@@ -282,7 +282,7 @@ python -m compileall app
 
 ## 许可证
 
-请在正式发布前补充许可证文件，例如 MIT、Apache-2.0 或其他适合你项目的开源协议。
+本项目基于 MIT License 开源，详见 [LICENSE](LICENSE)。
 
 ## 致谢
 
