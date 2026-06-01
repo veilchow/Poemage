@@ -36,7 +36,7 @@ Poemage 适合用于以下场景：
 - 基于 SSE 的课堂事件实时展示
 - AI 教学内容生成管线的工程集成参考
 
-> 说明：本开源发行版中的 `app/classroom/core.py` 是公开 fallback 实现，用于保证项目可运行与结构可理解。生产环境中的高级 prompt 管线、知识路由、内容校验策略可以通过替换该模块接入。
+> 说明：`app/classroom/core.py` 集中了课堂内容生成相关逻辑，便于根据不同课程、模型或知识库需求进行扩展。
 
 ## 架构概览
 
@@ -109,7 +109,6 @@ Poemage/
 │   ├── templates/          # 教师端页面
 │   └── ...
 ├── docs/                   # API 与交接文档
-├── tools/                  # 开源发行导出工具
 ├── requirements.txt
 ├── run.py
 └── README.md
@@ -243,7 +242,7 @@ GET /api/classroom/events/stream
 app/classroom/core.py
 ```
 
-开源版提供的是简化 fallback。你可以替换该模块以接入自己的：
+你可以扩展该模块以接入自己的：
 
 - prompt 模板
 - 知识库召回
@@ -261,8 +260,6 @@ app/classroom/core.py
 - API Key
 - 生产域名和服务器地址
 - 生成图片与运行日志
-
-本仓库提供的 `tools/export_open_source.py` 可用于从内部仓库导出公开发行版，并自动排除敏感配置与运行产物。
 
 ## 开发建议
 
