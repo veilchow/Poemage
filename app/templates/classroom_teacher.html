@@ -1,0 +1,2000 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>课堂教师端</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f8;
+      --panel: #ffffff;
+      --line: #dfe3e7;
+      --text: #20242a;
+      --muted: #7a838e;
+      --dark: #24272c;
+      --accent: #1d7f74;
+      --accent-soft: #e4f4f1;
+      --pink: #ffe5e8;
+      --yellow: #fff5d8;
+      --blue: #e7f2ff;
+      --shadow: 0 10px 28px rgba(31, 35, 40, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      grid-template-rows: 56px minmax(0, 1fr) 64px;
+      height: 100vh;
+      min-width: 960px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      padding: 0 16px;
+    }
+
+    .header.left {
+      border-right: 1px solid var(--line);
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .session {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .sidebar {
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: #f2f3f5;
+      padding: 10px 0;
+    }
+
+    .concept {
+      display: grid;
+      grid-template-columns: 70px minmax(0, 1fr) 76px auto;
+      align-items: center;
+      column-gap: 12px;
+      min-height: 64px;
+      border: 1px solid var(--line);
+      border-left: 0;
+      border-right: 0;
+      background: var(--panel);
+      padding: 12px 16px;
+      margin-bottom: 2px;
+      cursor: pointer;
+    }
+
+    .concept.active {
+      border-left: 3px solid var(--accent);
+      background: #ffffff;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tag.location {
+      color: #e45757;
+      background: var(--pink);
+    }
+
+    .tag.person {
+      color: #159489;
+      background: var(--accent-soft);
+    }
+
+    .tag.event {
+      color: #c99a00;
+      background: var(--yellow);
+    }
+
+    .tag.poem {
+      color: #8066c9;
+      background: #eee9ff;
+    }
+
+    .tag.culture {
+      color: #5e6da8;
+      background: #e8ecfb;
+    }
+
+    .tag.history {
+      color: #c75d5d;
+      background: #ffe8e8;
+    }
+
+    .tag.technique {
+      color: #7056b8;
+      background: #eee9ff;
+    }
+
+    .tag.theme {
+      color: #b64e86;
+      background: #ffe7f3;
+    }
+
+    .tag.other {
+      color: #3974b8;
+      background: var(--blue);
+    }
+
+    .concept-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+      line-height: 20px;
+    }
+
+    .concept-time {
+      color: #a0a8b0;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 11px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .concept-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-button {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border: 0;
+      border-radius: 6px;
+      background: #eef0f2;
+      color: #5a6470;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .icon-button:hover {
+      background: #e0e4e8;
+    }
+
+    .icon-button:disabled {
+      color: #b8c0c8;
+      background: #f1f3f5;
+      cursor: not-allowed;
+    }
+
+    .icon-button.danger {
+      color: #a94442;
+      background: #f7e9e9;
+    }
+
+    .main {
+      position: relative;
+      overflow: auto;
+      background: var(--panel);
+      padding: 26px 34px 48px;
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      height: 100%;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty-title {
+      color: #8a929c;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .primary {
+      height: 36px;
+      border: 0;
+      border-radius: 5px;
+      background: var(--dark);
+      color: white;
+      padding: 0 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .lesson {
+      max-width: 1040px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .lesson-component {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .component-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+      padding: 14px 18px;
+    }
+
+    .component-head .tag {
+      min-width: 72px;
+      padding: 0 14px;
+    }
+
+    .component-title {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .component-context {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .lesson-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 18px;
+      align-items: stretch;
+      padding: 18px;
+    }
+
+    .document,
+    .content-card,
+    .side-rail {
+      min-width: 0;
+    }
+
+    .content-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .content-card {
+      padding: 22px 24px;
+    }
+
+    .side-rail {
+      display: grid;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .document {
+      line-height: 1.72;
+      min-height: 540px;
+    }
+
+    .generation {
+      max-width: 880px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .generation-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #cfd6dc;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    .generation-copy {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(2px);
+      padding: 34px;
+    }
+
+    .loading-overlay[hidden] {
+      display: none;
+    }
+
+    .loading-card {
+      width: min(720px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .loading-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      font-weight: 700;
+    }
+
+    .skeleton-line {
+      height: 13px;
+      margin: 12px 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #edf0f3 25%, #f9fafb 37%, #edf0f3 63%);
+      background-size: 400% 100%;
+      animation: skeleton 1.25s ease-in-out infinite;
+    }
+
+    .skeleton-line.short {
+      width: 44%;
+    }
+
+    .skeleton-line.mid {
+      width: 68%;
+    }
+
+    @keyframes skeleton {
+      0% {
+        background-position: 100% 0;
+      }
+
+      100% {
+        background-position: 0 0;
+      }
+    }
+
+    .visual-panel {
+      min-height: 300px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 14px;
+      color: var(--muted);
+      box-shadow: var(--shadow);
+    }
+
+    .note-panel {
+      border-top: 1px solid var(--line);
+      padding: 14px 18px 18px;
+      color: var(--muted);
+    }
+
+    .note-title {
+      margin-bottom: 10px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .comment-list {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .comment-item {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfcfd;
+      padding: 9px 10px;
+      color: #3f4852;
+    }
+
+    .comment-form {
+      display: flex;
+      gap: 8px;
+    }
+
+    .comment-form input,
+    .simulate-input,
+    .simulate-select {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #ffffff;
+      padding: 0 10px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .comment-form input {
+      flex: 1;
+    }
+
+    .note-panel button {
+      height: 32px;
+      border: 0;
+      border-radius: 5px;
+      background: #eef0f2;
+      color: #4d5660;
+      padding: 0 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mermaid-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      padding: 16px;
+    }
+
+    .mermaid-panel pre {
+      overflow: auto;
+      margin: 10px 0 0;
+      border-radius: 6px;
+      background: #f1f3f5;
+      padding: 12px;
+      color: #2f3740;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .mermaid-render {
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      margin-top: 12px;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 12px;
+      min-height: 300px;
+      text-align: center;
+    }
+
+    .mermaid-render svg {
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .visual-panel.loading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .visual-panel img {
+      display: block;
+      width: 100%;
+      max-height: 260px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      cursor: zoom-in;
+    }
+
+    .image-grid.multi {
+      grid-template-columns: 1fr;
+    }
+
+    .visual-title {
+      margin-bottom: 8px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .document h1,
+    .document h2,
+    .document h3 {
+      margin: 24px 0 12px;
+      line-height: 1.3;
+    }
+
+    .document h1 {
+      margin-top: 0;
+      font-size: 30px;
+    }
+
+    .document > :first-child {
+      margin-top: 0;
+    }
+
+    .document h2 {
+      font-size: 20px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .document h3 {
+      font-size: 17px;
+    }
+
+    .document p {
+      margin: 10px 0;
+    }
+
+    .document ul,
+    .document ol {
+      margin: 10px 0 10px 22px;
+      padding: 0;
+    }
+
+    .document code {
+      border-radius: 4px;
+      background: #f0f2f4;
+      padding: 2px 5px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    .toolbar {
+      grid-column: 1 / 3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-top: 1px solid var(--line);
+      background: var(--panel);
+      padding: 0 16px;
+    }
+
+    .tool {
+      min-width: 78px;
+      height: 36px;
+      border: 0;
+      border-radius: 5px;
+      background: var(--dark);
+      color: white;
+      padding: 0 14px;
+      font-weight: 700;
+      line-height: 36px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .tool.secondary {
+      background: #eef0f2;
+      color: #5d6670;
+    }
+
+    .simulate-input {
+      width: min(240px, 22vw);
+      min-width: 160px;
+    }
+
+    #simulateCustom {
+      min-width: 108px;
+    }
+
+    .simulate-description {
+      width: min(320px, 26vw);
+      min-width: 200px;
+    }
+
+    .side-loading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 120px;
+      color: var(--muted);
+    }
+
+    .image-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      background: rgba(20, 24, 29, 0.72);
+      padding: 28px;
+    }
+
+    .image-modal img {
+      max-width: min(1120px, 94vw);
+      max-height: 88vh;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+    }
+
+    .image-modal button {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      color: #20242a;
+      font-size: 22px;
+      line-height: 36px;
+      cursor: pointer;
+    }
+
+    .status {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .confirm-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      background: rgba(20, 24, 29, 0.56);
+      padding: 28px;
+    }
+
+    .confirm-card {
+      width: min(860px, 92vw);
+      max-height: 88vh;
+      overflow: auto;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+    }
+
+    .confirm-head {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding: 22px 24px;
+    }
+
+    .confirm-head .tag {
+      min-width: 72px;
+      height: 34px;
+      padding: 0 14px;
+      flex: 0 0 auto;
+    }
+
+    .confirm-heading {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    .confirm-heading-main {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .confirm-heading-main .title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .generated-count {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .confirm-head button {
+      margin-left: auto;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 6px;
+      background: #f0f2f4;
+      color: #59636f;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .confirm-body {
+      display: grid;
+      gap: 18px;
+      padding: 22px 24px 24px;
+    }
+
+    .field-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field-grid label {
+      display: grid;
+      gap: 7px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .field-label {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .field-grid input,
+    .field-grid textarea,
+    .custom-option input,
+    .custom-option textarea,
+    .option-card input,
+    .option-card textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfcfd;
+      padding: 10px 12px;
+      color: var(--text);
+      font: inherit;
+      font-weight: 400;
+      outline: none;
+      resize: vertical;
+    }
+
+    .context-field span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .option-card {
+      min-height: 78px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 13px 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .option-card.location { border-color: #f2c3c3; background: #fff8f8; }
+    .option-card.person { border-color: #b8dcd6; background: #f4fbfa; }
+    .option-card.event { border-color: #ead78e; background: #fffaf0; }
+    .option-card.poem { border-color: #cfc4f2; background: #fbf9ff; }
+    .option-card.culture { border-color: #cdd5ef; background: #f8f9ff; }
+    .option-card.history { border-color: #f0c1c1; background: #fff8f8; }
+    .option-card.technique { border-color: #d2c8ef; background: #fbf9ff; }
+    .option-card.theme { border-color: #efc5db; background: #fff8fc; }
+
+    .option-card.primary-option {
+      grid-column: span 3;
+      min-height: 92px;
+      background: #eef9f7;
+      border-color: #b8dcd6;
+    }
+
+    .option-card.active {
+      border-color: var(--accent);
+      box-shadow: inset 4px 0 0 var(--accent);
+    }
+
+    .option-card.used {
+      opacity: 0.48;
+    }
+
+    .option-card.custom-card {
+      border-style: dashed;
+      background: #fbfcfd;
+    }
+
+    .option-card.add-ready {
+      border-color: #c9d8e8;
+    }
+
+    .option-card input {
+      height: 34px;
+      margin-bottom: 8px;
+      border: 0;
+      border-bottom: 1px solid rgba(125, 136, 148, 0.22);
+      border-radius: 0;
+      background: transparent;
+      padding: 0 0 7px;
+      font-weight: 800;
+    }
+
+    .option-card textarea {
+      min-height: 58px;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .option-title {
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .option-desc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .custom-option {
+      display: grid;
+      grid-template-columns: minmax(160px, 220px) minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .custom-option button,
+    .confirm-actions button {
+      height: 38px;
+      border: 0;
+      border-radius: 6px;
+      padding: 0 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .confirm-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .confirm-actions .secondary {
+      background: #eef0f2;
+      color: #4d5660;
+    }
+
+    .confirm-actions .primary-action,
+    .custom-option button {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .confirm-actions .primary-action {
+      min-width: 168px;
+      box-shadow: 0 8px 18px rgba(29, 127, 116, 0.18);
+    }
+
+    .danger-action {
+      background: #a94442 !important;
+      color: #ffffff !important;
+    }
+
+    .custom-type-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .type-choice {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 0 12px;
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .type-choice.active {
+      border-color: var(--accent);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .type-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      background: var(--accent);
+    }
+
+    .type-dot.location { background: #f46d6d; }
+    .type-dot.person { background: #45c7bb; }
+    .type-dot.event { background: #f0c94c; }
+    .type-dot.poem { background: #9fded8; }
+    .type-dot.culture { background: #b9c4e6; }
+    .type-dot.history { background: #f07b7b; }
+    .type-dot.technique { background: #9b82d8; }
+    .type-dot.theme { background: #eda0c8; }
+    .type-dot.concept { background: #b9c4e6; }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 300px minmax(0, 1fr);
+        min-width: 760px;
+      }
+
+      .lesson-hero {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="header left">
+      <div class="title">课堂新关注概念</div>
+    </header>
+    <header class="header">
+      <div class="title">动态教学文案</div>
+      <div class="session">教师：{{ username }}</div>
+    </header>
+
+    <aside class="sidebar" id="conceptList"></aside>
+
+    <main class="main" id="mainPanel">
+      <div class="empty" id="emptyState">
+        <div class="empty-title">等待游戏端课堂事件</div>
+      </div>
+      <section class="lesson" id="lesson" hidden></section>
+      <div class="loading-overlay" id="loadingOverlay" hidden>
+        <div class="loading-card">
+          <div class="loading-head">
+            <span class="spinner"></span>
+            <span>AI 正在生成课堂内容</span>
+          </div>
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line mid"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="toolbar">
+      <button class="tool" id="simulateLocation">模拟地点</button>
+      <button class="tool" id="simulatePerson">模拟诗人</button>
+      <button class="tool" id="simulateEvent">模拟事件</button>
+      <button class="tool secondary" id="openCustomSimulate">自定义模拟</button>
+      <span class="status" id="status">未连接</span>
+    </footer>
+  </div>
+
+  <div class="image-modal" id="imageModal" hidden>
+    <button type="button" id="closeImageModal" aria-label="关闭">×</button>
+    <img id="modalImage" alt="课堂图像放大预览">
+  </div>
+
+  <div class="confirm-modal" id="confirmModal" hidden>
+    <div class="confirm-card">
+      <div class="confirm-head">
+        <span class="tag other" id="confirmTypeTag">概念</span>
+        <div class="confirm-heading">
+          <div class="confirm-heading-main">
+            <div class="title" id="confirmTitle">详细信息</div>
+            <div class="generated-count" id="confirmSubtitle"></div>
+          </div>
+        </div>
+        <button type="button" id="closeConfirmModal" aria-label="关闭">×</button>
+      </div>
+      <div class="confirm-body">
+        <div class="field-grid">
+          <label>
+            <span class="field-label">内容</span>
+            <input id="confirmContextInput" type="text">
+          </label>
+          <label class="context-field">
+            <span class="field-label">课堂背景</span>
+            <textarea id="confirmDescriptionInput" rows="3"></textarea>
+          </label>
+        </div>
+        <div>
+          <div class="note-title">扩展选项</div>
+          <div class="option-grid" id="optionGrid"></div>
+        </div>
+        <div class="confirm-actions">
+          <button class="primary-action" type="button" id="generateSelectedOption">生成教学文案</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-modal" id="customSimulateModal" hidden>
+    <div class="confirm-card">
+      <div class="confirm-head">
+        <span class="tag other">模拟</span>
+        <div class="confirm-heading">
+          <div class="confirm-heading-main">
+            <div class="title">添加课堂事件</div>
+          </div>
+          <div class="component-context">用于本地模拟游戏端发送给服务端的数据。</div>
+        </div>
+        <button type="button" id="closeCustomSimulate" aria-label="关闭">×</button>
+      </div>
+      <div class="confirm-body">
+        <div>
+          <div class="note-title">选择类型</div>
+          <div class="custom-type-grid" id="customTypeGrid">
+            <button type="button" class="type-choice active" data-type="location"><span class="type-dot location"></span>地点</button>
+            <button type="button" class="type-choice" data-type="person"><span class="type-dot person"></span>诗人</button>
+            <button type="button" class="type-choice" data-type="event"><span class="type-dot event"></span>事件</button>
+            <button type="button" class="type-choice" data-type="poem"><span class="type-dot poem"></span>诗作</button>
+            <button type="button" class="type-choice" data-type="culture"><span class="type-dot culture"></span>文化</button>
+            <button type="button" class="type-choice" data-type="history"><span class="type-dot history"></span>历史</button>
+            <button type="button" class="type-choice" data-type="technique"><span class="type-dot technique"></span>技法</button>
+            <button type="button" class="type-choice" data-type="theme"><span class="type-dot theme"></span>主题</button>
+          </div>
+        </div>
+        <div class="field-grid">
+          <label>
+            <span class="field-label">内容</span>
+            <input id="customConceptInput" type="text" placeholder="例如：洛阳、李白、大漠">
+          </label>
+          <label class="context-field">
+            <span class="field-label">课堂背景</span>
+            <textarea id="customDescriptionInput" rows="4" placeholder="老师带着学生在诗词世界中探索..."></textarea>
+          </label>
+        </div>
+        <div class="confirm-actions">
+          <button class="secondary" type="button" id="cancelCustomSimulate">取消</button>
+          <button class="primary-action" type="button" id="simulateCustom">添加</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-modal" id="deleteConfirmModal" hidden>
+    <div class="confirm-card">
+      <div class="confirm-head">
+        <span class="tag other">删除</span>
+        <div class="confirm-heading">
+          <div class="confirm-heading-main">
+            <div class="title">删除课堂概念</div>
+          </div>
+          <div class="component-context" id="deleteConfirmText"></div>
+        </div>
+        <button type="button" id="closeDeleteConfirm" aria-label="关闭">×</button>
+      </div>
+      <div class="confirm-body">
+        <div class="confirm-actions">
+          <button class="secondary" type="button" id="cancelDeleteConcept">取消</button>
+          <button class="danger-action" type="button" id="confirmDeleteConcept">确认删除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+  <script>
+    const conceptList = document.getElementById('conceptList');
+    const lesson = document.getElementById('lesson');
+    const emptyState = document.getElementById('emptyState');
+    const statusNode = document.getElementById('status');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmTypeTag = document.getElementById('confirmTypeTag');
+    const confirmTitle = document.getElementById('confirmTitle');
+    const confirmSubtitle = document.getElementById('confirmSubtitle');
+    const confirmContextInput = document.getElementById('confirmContextInput');
+    const confirmDescriptionInput = document.getElementById('confirmDescriptionInput');
+    const optionGrid = document.getElementById('optionGrid');
+    const customSimulateModal = document.getElementById('customSimulateModal');
+    const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    const deleteConfirmText = document.getElementById('deleteConfirmText');
+    const customTypeGrid = document.getElementById('customTypeGrid');
+    const customConceptInput = document.getElementById('customConceptInput');
+    const customDescriptionInput = document.getElementById('customDescriptionInput');
+    let source = null;
+    let mermaidIndex = 0;
+    let activeConceptId = null;
+    let modalConceptId = null;
+    let deleteConceptId = null;
+    let selectedOptionId = null;
+    let customSimulateType = 'location';
+    const concepts = new Map();
+    const components = new Map();
+    const conceptKeys = new Map();
+
+    const labelMap = {
+      location: '地点',
+      person: '诗人',
+      event: '事件',
+      poem: '诗词',
+      culture: '文化',
+      history: '历史',
+      technique: '技法',
+      theme: '主题',
+    };
+
+    const extensionTemplates = {
+      location: [
+        {id: 'location_intro', title: '地点介绍', description: '地点的基本信息、地理位置和诗词画面入口。', instruction: '讲清地点的方位、历史气质、画面感，以及它为什么容易进入诗词。', primary: true},
+        {id: 'location_poets', title: '相关诗人', description: '在此地创作或生活过的诗人。', instruction: '围绕与该地点有关的诗人，讲人物处境和作品气质。'},
+        {id: 'location_history', title: '地点历史', description: '该地点的历史沿革和文化意义。', instruction: '讲清历史变化如何沉淀为怀古、离别或乡愁。'},
+      ],
+      person: [
+        {id: 'person_intro', title: '诗人介绍', description: '这位诗人的基本信息和生平概览。', instruction: '讲清诗人的气质、人生处境、作品风格，不写履历表。', primary: true},
+        {id: 'person_context', title: '诗人当前的境遇', description: '诗人所处的时代背景和生活境况。', instruction: '讲这个人为什么会处在这样的历史和人生压力中。'},
+        {id: 'person_works', title: '诗人的知名作品', description: '这位诗人最著名的诗歌作品。', instruction: '选择能支撑当前课堂情境的代表作品，讲画面与情绪。'},
+      ],
+      event: [
+        {id: 'event_intro', title: '事件背景', description: '事件发生的基本背景、人物处境和时代压力。', instruction: '讲清事件如何改变人物处境，并进入诗词表达。', primary: true},
+        {id: 'event_people', title: '卷入人物', description: '事件中的关键人物与诗人关系。', instruction: '讲人物在事件中的选择、失去和情绪。'},
+        {id: 'event_poems', title: '诗词回声', description: '事件在诗词中的表现方式。', instruction: '讲事件如何转化为家国、漂泊、离乱等诗词情感。'},
+      ],
+      poem: [
+        {id: 'poem_intro', title: '诗词赏析', description: '诗词画面、意象和情感变化。', instruction: '按画面、意象、情感转折讲给学生听。', primary: true},
+        {id: 'poem_context', title: '创作背景', description: '诗人写作时的处境。', instruction: '只讲帮助理解诗句的背景，不堆知识点。'},
+        {id: 'poem_images', title: '意象关系', description: '诗中关键意象之间的联系。', instruction: '讲意象怎样一起推动情绪变化。'},
+      ],
+      culture: [
+        {id: 'culture_intro', title: '文化解释', description: '文化常识与诗词表达的关系。', instruction: '讲清这个文化点如何帮助学生读懂诗词画面、礼俗和情绪。', primary: true},
+        {id: 'culture_examples', title: '诗词例证', description: '用可靠诗词例子解释文化内涵。', instruction: '选择常见、可靠的诗词语境说明文化意义。'},
+      ],
+      history: [
+        {id: 'history_intro', title: '历史背景', description: '历史环境与人物处境。', instruction: '讲清历史变化如何影响人物命运和诗词情绪。', primary: true},
+        {id: 'history_trace', title: '前后脉络', description: '事件前后关系和影响。', instruction: '用简洁脉络帮助学生理解时代压力。'},
+      ],
+      technique: [
+        {id: 'technique_intro', title: '表现技法', description: '诗词写法与表达效果。', instruction: '讲清这种写法如何组织画面、推进情绪、留下余味。', primary: true},
+        {id: 'technique_compare', title: '对比辨析', description: '与相近技法对照。', instruction: '通过对比讲出这种技法的独特效果。'},
+      ],
+      theme: [
+        {id: 'theme_intro', title: '主题理解', description: '主题含义和情感结构。', instruction: '讲清主题如何从画面、处境和情绪中自然生长出来。', primary: true},
+        {id: 'theme_question', title: '课堂追问', description: '围绕主题设计讨论入口。', instruction: '提出能引导学生深入文本的主题问题。'},
+      ],
+      concept: [
+        {id: 'concept_intro', title: '概念讲解', description: '概念的含义和诗词学习价值。', instruction: '把概念落到具体画面、处境和情绪。', primary: true},
+        {id: 'concept_examples', title: '诗词例证', description: '用诗词例子辅助理解概念。', instruction: '用可靠例子说明概念，不编造诗句。'},
+      ],
+    };
+
+    if (window.mermaid) {
+      mermaid.initialize({
+        startOnLoad: false,
+        suppressErrorRendering: true,
+        securityLevel: 'strict',
+        theme: 'base',
+        themeVariables: {
+          primaryColor: '#e4f4f1',
+          primaryTextColor: '#20242a',
+          primaryBorderColor: '#9ccbc4',
+          lineColor: '#7a838e',
+          secondaryColor: '#fff5d8',
+          tertiaryColor: '#e7f2ff',
+          fontFamily: 'Inter, Microsoft YaHei, sans-serif',
+        },
+      });
+    }
+
+    function setStatus(text) {
+      statusNode.textContent = text;
+    }
+
+    function setLoading(isLoading) {
+      loadingOverlay.hidden = !isLoading;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function renderInline(value) {
+      return escapeHtml(value).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    function renderMarkdown(text) {
+      const lines = text.split('\n');
+      const html = [];
+      let inList = false;
+      let inOrderedList = false;
+
+      function closeLists() {
+        if (inList) html.push('</ul>');
+        if (inOrderedList) html.push('</ol>');
+        inList = false;
+        inOrderedList = false;
+      }
+
+      for (const line of lines) {
+        if (/^###\s+/.test(line)) {
+          closeLists();
+          html.push(`<h3>${renderInline(line.replace(/^###\s+/, ''))}</h3>`);
+        } else if (/^##\s+/.test(line)) {
+          closeLists();
+          html.push(`<h2>${renderInline(line.replace(/^##\s+/, ''))}</h2>`);
+        } else if (/^#\s+/.test(line)) {
+          closeLists();
+          html.push(`<h1>${renderInline(line.replace(/^#\s+/, ''))}</h1>`);
+        } else if (/^[-*]\s+/.test(line)) {
+          if (inOrderedList) {
+            html.push('</ol>');
+            inOrderedList = false;
+          }
+          if (!inList) {
+            html.push('<ul>');
+            inList = true;
+          }
+          html.push(`<li>${renderInline(line.replace(/^[-*]\s+/, ''))}</li>`);
+        } else if (/^\d+\.\s+/.test(line)) {
+          if (inList) {
+            html.push('</ul>');
+            inList = false;
+          }
+          if (!inOrderedList) {
+            html.push('<ol>');
+            inOrderedList = true;
+          }
+          html.push(`<li>${renderInline(line.replace(/^\d+\.\s+/, ''))}</li>`);
+        } else if (line.trim()) {
+          closeLists();
+          html.push(`<p>${renderInline(line)}</p>`);
+        }
+      }
+
+      closeLists();
+      return html.join('');
+    }
+
+    function getOptionsForType(type) {
+      return (extensionTemplates[type] || extensionTemplates.concept).map((item) => ({...item}));
+    }
+
+    function setActiveConcept(conceptId) {
+      activeConceptId = Number(conceptId);
+      [...conceptList.querySelectorAll('.concept')].forEach((row) => {
+        row.classList.toggle('active', Number(row.dataset.conceptId) === activeConceptId);
+      });
+      renderActiveConcept();
+    }
+
+    function updateConceptRowState(conceptId) {
+      const concept = concepts.get(Number(conceptId));
+      const row = conceptList.querySelector(`[data-concept-id="${Number(conceptId)}"]`);
+      if (!concept || !row) return;
+      const hasComponents = concept.componentIds.length > 0;
+      const configButton = row.querySelector('[data-action="configure-concept"]');
+      if (configButton) {
+        configButton.disabled = !hasComponents;
+        configButton.title = hasComponents ? '配置扩展项' : '先点击概念选择扩展项';
+      }
+    }
+
+    function appendConcept(event) {
+      const type = event.concept_type || event.type || 'concept';
+      const label = labelMap[type] || '概念';
+      const conceptId = Number(event.id);
+      if (concepts.has(conceptId)) return conceptId;
+      const conceptKey = `${type}:${String(event.name || '').trim()}`;
+      if (conceptKeys.has(conceptKey)) {
+        const existingId = conceptKeys.get(conceptKey);
+        setActiveConcept(existingId);
+        setStatus(`已存在 ${event.name || '概念'}`);
+        return existingId;
+      }
+      concepts.set(conceptId, {
+        event,
+        options: getOptionsForType(type),
+        usedOptions: new Set(),
+        componentIds: [],
+      });
+      conceptKeys.set(conceptKey, conceptId);
+      const row = document.createElement('div');
+      row.className = 'concept';
+      row.dataset.conceptId = conceptId;
+      row.innerHTML = `
+        <span class="tag ${type}">${label}</span>
+        <div class="concept-name">${escapeHtml(event.name || '未命名')}</div>
+        <div class="concept-time">${formatEventTime(event.created_at)}</div>
+        <div class="concept-actions">
+          <button type="button" class="icon-button" data-action="configure-concept" title="先点击概念选择扩展项" disabled>⚙</button>
+          <button type="button" class="icon-button danger" data-action="delete-concept" title="删除概念">×</button>
+        </div>
+      `;
+      row.addEventListener('click', (clickEvent) => {
+        const action = clickEvent.target.closest('[data-action]');
+        if (action?.dataset.action === 'configure-concept') {
+          if (!action.disabled) openConfirmModal(conceptId);
+          return;
+        }
+        if (action?.dataset.action === 'delete-concept') {
+          openDeleteConfirm(conceptId);
+          return;
+        }
+        setActiveConcept(conceptId);
+        if (!concepts.get(conceptId)?.componentIds.length) {
+          openConfirmModal(conceptId);
+        }
+      });
+      conceptList.prepend(row);
+      setActiveConcept(conceptId);
+      updateConceptRowState(conceptId);
+      return conceptId;
+    }
+
+    function formatEventTime(value) {
+      if (!value) return '';
+      return new Date(value).toLocaleTimeString('zh-CN', {
+        hour12: false,
+        timeZone: 'Asia/Shanghai',
+      });
+    }
+
+    function renderActiveConcept() {
+      const concept = concepts.get(activeConceptId);
+      if (!concept || !concept.componentIds.length) {
+        lesson.hidden = true;
+        emptyState.hidden = concepts.size > 0;
+        if (concepts.size > 0) setStatus('请选择扩展选项生成教学组件');
+        return;
+      }
+
+      emptyState.hidden = true;
+      setLoading(false);
+      lesson.hidden = false;
+      lesson.innerHTML = '';
+      concept.componentIds.forEach((componentId) => {
+        const component = components.get(componentId);
+        if (!component) return;
+        lesson.appendChild(buildComponentNode(component));
+        Object.entries(component.mermaids || {}).forEach(([chartType, code]) => {
+          renderMermaidCode(code, componentId, chartType);
+        });
+      });
+    }
+
+    function renderImageHtml(images) {
+      if (!images.length) {
+        return '<div class="side-loading"><span class="spinner"></span><span>等待课堂图像</span></div>';
+      }
+      const className = images.length > 1 ? 'image-grid multi' : 'image-grid';
+      return `
+        <div class="${className}">
+          ${images.map((src) => `<img alt="课堂图像" src="${escapeHtml(src)}" data-full-src="${escapeHtml(src)}">`).join('')}
+        </div>
+      `;
+    }
+
+    function buildComponentNode(component) {
+      const type = component.concept?.event?.concept_type || 'concept';
+      const conceptName = component.concept?.event?.name || component.concept?.event?.description || '课堂内容';
+      const optionTitle = component.extension?.title || '教学组件';
+      const optionDesc = component.extension?.description || component.extension?.instruction || '';
+      const node = document.createElement('article');
+      node.className = 'lesson-component';
+      node.dataset.componentId = component.id;
+      node.innerHTML = `
+        <header class="component-head">
+          <span class="tag ${type}">${escapeHtml(labelMap[type] || '概念')}</span>
+          <div>
+            <div class="component-title">${escapeHtml(conceptName)}</div>
+            <div class="component-context">${escapeHtml(optionTitle)} · ${escapeHtml(optionDesc)}</div>
+          </div>
+        </header>
+        <div class="lesson-hero">
+          <article class="document content-card" data-role="document">
+            ${component.markdown ? renderMarkdown(component.markdown) : '<div class="side-loading"><span class="spinner"></span><span>正在生成课堂文案</span></div>'}
+          </article>
+          <aside class="side-rail">
+            <section class="visual-panel">
+              <div class="visual-title">课堂图像</div>
+              <div data-role="visual">${renderImageHtml(component.images)}</div>
+            </section>
+            <section class="mermaid-panel"${component.ready && !component.mermaids?.mindmap ? ' hidden' : ''}>
+              <div class="visual-title">思维导图</div>
+              <div class="mermaid-render" data-role="mermaid-render" data-chart-type="mindmap">${component.mermaids?.mindmap ? '' : '<div class="side-loading"><span class="spinner"></span><span>等待思维导图</span></div>'}</div>
+              <pre data-role="mermaid-code" data-chart-type="mindmap" hidden></pre>
+            </section>
+          </aside>
+        </div>
+        <section class="note-panel">
+          <div class="comment-list" data-role="comment-list">
+            ${component.comments.map((item) => `<div class="comment-item">${escapeHtml(item)}</div>`).join('')}
+          </div>
+          <div class="comment-form">
+            <input type="text" placeholder="添加课堂评论" data-role="comment-input">
+            <button type="button" data-action="add-comment">+ 新建笔记</button>
+          </div>
+        </section>
+      `;
+      return node;
+    }
+
+    function componentNode(componentId) {
+      return lesson.querySelector(`[data-component-id="${CSS.escape(componentId)}"]`);
+    }
+
+    function ensureComponent(payload = {}) {
+      const componentId = payload.component_id;
+      if (!componentId) return null;
+      if (components.has(componentId)) return components.get(componentId);
+      const conceptId = Number(payload.concept_event_id || activeConceptId);
+      const concept = concepts.get(conceptId);
+      const component = {
+        id: componentId,
+        concept,
+        conceptId,
+        extension: payload.extension || {title: '教学组件', description: ''},
+        markdown: '',
+        images: [],
+        mermaids: {},
+        comments: [],
+        ready: false,
+      };
+      components.set(componentId, component);
+      if (concept && !concept.componentIds.includes(componentId)) {
+        concept.componentIds.push(componentId);
+        if (component.extension?.id) concept.usedOptions.add(component.extension.id);
+        updateConceptRowState(conceptId);
+      }
+      if (activeConceptId === conceptId) renderActiveConcept();
+      return component;
+    }
+
+    function appendMarkdownDelta(payload, content) {
+      const component = ensureComponent(payload);
+      if (!component || !content) return;
+      component.markdown += content;
+      const target = componentNode(component.id)?.querySelector('[data-role="document"]');
+      if (target) target.innerHTML = renderMarkdown(component.markdown);
+    }
+
+    function updateComponentImages(payload, images) {
+      const component = ensureComponent(payload);
+      if (!component) return;
+      component.images = images;
+      const target = componentNode(component.id)?.querySelector('[data-role="visual"]');
+      if (target) target.innerHTML = renderImageHtml(images);
+    }
+
+    async function renderMermaidCode(code, componentId, chartType = 'mindmap') {
+      const component = components.get(componentId);
+      const node = componentNode(componentId);
+      const renderTarget = node?.querySelector(`[data-role="mermaid-render"][data-chart-type="${chartType}"]`);
+      const codeTarget = node?.querySelector(`[data-role="mermaid-code"][data-chart-type="${chartType}"]`);
+      const panel = renderTarget?.closest('.mermaid-panel');
+      if (!renderTarget || chartType !== 'mindmap') return;
+      if (codeTarget) codeTarget.textContent = code;
+      renderTarget.innerHTML = '';
+      if (panel) panel.hidden = false;
+
+      if (!window.mermaid) {
+        hideMermaidPanel(panel, renderTarget, codeTarget);
+        return;
+      }
+
+      try {
+        const svg = await renderValidatedMermaid(code);
+        if (component) {
+          component.mermaids = component.mermaids || {};
+          component.mermaids[chartType] = code;
+        }
+        renderTarget.innerHTML = svg;
+      } catch (error) {
+        cleanupMermaidArtifacts();
+        if (component?.mermaids) delete component.mermaids[chartType];
+        hideMermaidPanel(panel, renderTarget, codeTarget);
+      }
+    }
+
+    async function renderValidatedMermaid(code) {
+      if (!code || !code.trim()) throw new Error('empty mermaid');
+      await mermaid.parse(code);
+      const id = `classroom-mermaid-${Date.now()}-${mermaidIndex++}`;
+      const result = await mermaid.render(id, code);
+      cleanupMermaidArtifacts();
+      if (!result?.svg || isMermaidErrorSvg(result.svg)) {
+        throw new Error('invalid mermaid svg');
+      }
+      return result.svg;
+    }
+
+    function isMermaidErrorSvg(svg) {
+      return /Syntax error|mermaid version|parse error|aria-roledescription="error"|role="graphics-document document" aria-roledescription="error"/i.test(svg);
+    }
+
+    function cleanupMermaidArtifacts() {
+      document.querySelectorAll(
+        'body > .mermaid, body > .error-icon, body > pre, body .error-text, body .error-message'
+      ).forEach((node) => node.remove());
+      document.querySelectorAll('body svg').forEach((svg) => {
+        const renderBox = svg.closest('.mermaid-render');
+        if (!renderBox || renderBox.dataset.chartType !== 'mindmap' || isMermaidErrorSvg(svg.outerHTML)) {
+          svg.remove();
+        }
+      });
+      document.querySelectorAll('[data-role="mermaid-render"]').forEach((target) => {
+        if (target.dataset.chartType !== 'mindmap' || isMermaidErrorSvg(target.innerHTML)) {
+          target.innerHTML = '';
+          const panel = target.closest('.mermaid-panel');
+          if (panel) panel.hidden = true;
+        }
+      });
+    }
+
+    function hideMermaidPanel(panel, renderTarget, codeTarget) {
+      if (renderTarget) renderTarget.innerHTML = '';
+      if (codeTarget) codeTarget.textContent = '';
+      if (panel) panel.hidden = true;
+      cleanupMermaidArtifacts();
+    }
+
+    function openConfirmModal(conceptId) {
+      const concept = concepts.get(Number(conceptId));
+      if (!concept) return;
+      modalConceptId = Number(conceptId);
+      const event = concept.event;
+      const type = event.concept_type || 'concept';
+      confirmTypeTag.className = `tag ${type}`;
+      confirmTypeTag.textContent = labelMap[type] || '概念';
+      confirmTitle.textContent = event.name || '详细信息';
+      confirmSubtitle.textContent = `已生成 ${concept.componentIds.length} 个教学组件`;
+      confirmContextInput.value = event.name || '';
+      confirmDescriptionInput.value = event.content || event.event_payload?.context || '';
+      selectedOptionId = null;
+      renderOptionGrid();
+      confirmModal.hidden = false;
+    }
+
+    function renderOptionGrid() {
+      const concept = concepts.get(modalConceptId);
+      if (!concept) return;
+      const firstUnused = concept.options.find((item) => !concept.usedOptions.has(item.id));
+      if (!selectedOptionId && firstUnused) selectedOptionId = firstUnused.id;
+      const optionHtml = concept.options.map((option) => {
+        const used = concept.usedOptions.has(option.id);
+        const active = selectedOptionId === option.id;
+        return `
+          <div class="option-card ${concept.event.concept_type || 'concept'} ${option.primary ? 'primary-option' : ''} ${active ? 'active' : ''} ${used ? 'used' : ''}" data-option-id="${escapeHtml(option.id)}">
+            <input data-option-field="title" value="${escapeHtml(option.title)}" ${used ? 'disabled' : ''}>
+            <textarea data-option-field="instruction" rows="2" ${used ? 'disabled' : ''}>${escapeHtml(option.instruction || option.description || '')}</textarea>
+          </div>
+        `;
+      }).join('');
+      optionGrid.innerHTML = `${optionHtml}
+        <div class="option-card ${concept.event.concept_type || 'concept'} custom-card add-ready" data-action="add-custom-option">
+          <input data-custom-field="title" placeholder="自定义标题">
+          <textarea data-custom-field="instruction" rows="2" placeholder="希望 AI 重点讲什么"></textarea>
+        </div>
+      `;
+    }
+
+    function closeConfirmModal() {
+      confirmModal.hidden = true;
+      modalConceptId = null;
+      selectedOptionId = null;
+    }
+
+    function openDeleteConfirm(conceptId) {
+      const concept = concepts.get(Number(conceptId));
+      if (!concept) return;
+      deleteConceptId = Number(conceptId);
+      const componentCount = concept.componentIds.length;
+      deleteConfirmText.textContent = `将删除“${concept.event.name || '未命名'}”及其 ${componentCount} 个教学组件。此操作只影响当前教师端显示。`;
+      deleteConfirmModal.hidden = false;
+    }
+
+    function closeDeleteConfirm() {
+      deleteConfirmModal.hidden = true;
+      deleteConceptId = null;
+    }
+
+    function deleteSelectedConcept() {
+      const concept = concepts.get(deleteConceptId);
+      if (!concept) {
+        closeDeleteConfirm();
+        return;
+      }
+      concept.componentIds.forEach((componentId) => components.delete(componentId));
+      const key = `${concept.event.concept_type || concept.event.type || 'concept'}:${String(concept.event.name || '').trim()}`;
+      conceptKeys.delete(key);
+      concepts.delete(deleteConceptId);
+      conceptList.querySelector(`[data-concept-id="${deleteConceptId}"]`)?.remove();
+      if (activeConceptId === deleteConceptId) {
+        const nextId = concepts.keys().next().value;
+        activeConceptId = nextId ? Number(nextId) : null;
+        if (activeConceptId) {
+          setActiveConcept(activeConceptId);
+        } else {
+          lesson.innerHTML = '';
+          lesson.hidden = true;
+          emptyState.hidden = false;
+        }
+      }
+      closeDeleteConfirm();
+      setStatus('已删除概念');
+    }
+
+    async function generateSelectedExtension() {
+      const concept = concepts.get(modalConceptId);
+      if (!concept || !selectedOptionId) return;
+      const option = concept.options.find((item) => item.id === selectedOptionId);
+      if (!option || concept.usedOptions.has(option.id)) {
+        setStatus('请选择未生成过的扩展项');
+        return;
+      }
+      option.title = String(option.title || '').trim() || '自定义扩展';
+      option.instruction = String(option.instruction || option.description || '').trim() || option.title;
+      const conceptId = modalConceptId;
+      const componentId = `${conceptId}-${option.id}-${Date.now()}`;
+      const payload = {
+        component_id: componentId,
+        context: confirmDescriptionInput.value.trim(),
+        type: concept.event.concept_type || 'concept',
+        description: confirmContextInput.value.trim() || concept.event.name,
+        extension: option,
+        generate_image: true,
+      };
+      await fetch(`/api/classroom/events/${conceptId}/generate`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload),
+      });
+      concept.event.name = payload.description;
+      concept.event.content = payload.context;
+      concept.usedOptions.add(option.id);
+      updateConceptRowState(conceptId);
+      closeConfirmModal();
+      setActiveConcept(conceptId);
+      setStatus('已提交生成任务');
+    }
+
+    function handleEvent(eventType, data) {
+      const payload = data.payload || {};
+      if (eventType === 'concept') {
+        appendConcept(data);
+        setStatus(`收到 ${data.name || '概念'}`);
+        return;
+      }
+
+      if (eventType === 'lesson_component_start') {
+        ensureComponent(payload);
+        setStatus('教学组件生成中');
+        return;
+      }
+
+      if (eventType === 'ai_start') {
+        ensureComponent(payload);
+        setStatus('文案生成中');
+        return;
+      }
+
+      if (eventType === 'markdown_delta') {
+        appendMarkdownDelta(payload, data.content || '');
+        return;
+      }
+
+      if (eventType === 'markdown_done') {
+        const component = ensureComponent(payload);
+        if (component) {
+          component.markdown = data.content || component.markdown;
+          const target = componentNode(component.id)?.querySelector('[data-role="document"]');
+          if (target) target.innerHTML = renderMarkdown(component.markdown);
+        }
+        setStatus('文案已生成');
+        return;
+      }
+
+      if (eventType === 'image_start') {
+        const component = ensureComponent(payload);
+        const target = componentNode(component?.id)?.querySelector('[data-role="visual"]');
+        if (target) target.innerHTML = '<div class="side-loading"><span class="spinner"></span><span>课堂图像生成中</span></div>';
+        setStatus('图像生成中');
+        return;
+      }
+
+      if (eventType === 'image_done') {
+        updateComponentImages(payload, payload.urls || (data.content ? [data.content] : []));
+        setStatus('图像已生成');
+        return;
+      }
+
+      if (eventType === 'image_error') {
+        const component = ensureComponent(payload);
+        const target = componentNode(component?.id)?.querySelector('[data-role="visual"]');
+        if (target) target.textContent = '课堂图像生成失败';
+        setStatus('图像生成失败');
+        return;
+      }
+
+      if (eventType === 'mermaid_start') {
+        const component = ensureComponent(payload);
+        if (component) component.ready = false;
+        const node = componentNode(component?.id);
+        node?.querySelectorAll('[data-role="mermaid-render"]').forEach((target) => {
+          const panel = target.closest('.mermaid-panel');
+          if (panel) panel.hidden = false;
+          target.innerHTML = '<div class="side-loading"><span class="spinner"></span><span>图表生成中</span></div>';
+        });
+        setStatus('图表生成中');
+        return;
+      }
+
+      if (eventType === 'mermaid_done') {
+        const component = ensureComponent(payload);
+        renderMermaidCode(data.content || '', component.id, payload.chart_type || 'mindmap');
+        setStatus('图表已生成');
+        return;
+      }
+
+      if (eventType === 'mermaid_error') {
+        const component = ensureComponent(payload);
+        const chartType = payload.chart_type || 'mindmap';
+        if (component?.mermaids) delete component.mermaids[chartType];
+        const renderTarget = componentNode(component?.id)?.querySelector(`[data-role="mermaid-render"][data-chart-type="${chartType}"]`);
+        const codeTarget = componentNode(component?.id)?.querySelector(`[data-role="mermaid-code"][data-chart-type="${chartType}"]`);
+        hideMermaidPanel(renderTarget?.closest('.mermaid-panel'), renderTarget, codeTarget);
+        setStatus('图表已隐藏');
+        return;
+      }
+
+      if (eventType === 'lesson_ready') {
+        const component = ensureComponent(payload);
+        if (component) {
+          component.markdown = payload.markdown || data.content || component.markdown;
+          component.images = payload.images || component.images;
+          component.mermaids = payload.mermaids || (payload.mermaid ? {mindmap: payload.mermaid} : component.mermaids);
+          component.ready = true;
+          if (activeConceptId === component.conceptId) renderActiveConcept();
+        }
+        setStatus('已完成');
+        return;
+      }
+
+      if (eventType === 'error') {
+        ensureComponent(payload);
+        setLoading(false);
+        setStatus(`生成失败：${data.content || ''}`);
+      }
+    }
+
+    function connect() {
+      if (source) {
+        source.close();
+      }
+
+      source = new EventSource('/api/classroom/events/stream');
+      setStatus('连接中');
+
+      ['ready', 'concept', 'lesson_component_start', 'ai_start', 'markdown_delta', 'markdown_done', 'mermaid_start', 'mermaid_done', 'mermaid_error', 'image_start', 'image_done', 'image_error', 'lesson_ready', 'error', 'heartbeat'].forEach((eventType) => {
+        source.addEventListener(eventType, (message) => {
+          const data = JSON.parse(message.data);
+          if (eventType === 'ready') {
+            setStatus('已连接');
+          } else if (eventType !== 'heartbeat') {
+            handleEvent(eventType, data);
+          }
+        });
+      });
+
+      source.onerror = () => {
+        setStatus('重连中');
+      };
+    }
+
+    async function simulate(type, contentValue, classroomContext) {
+      await fetch('/api/classroom/events', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          type,
+          context: classroomContext,
+          description: contentValue,
+        }),
+      });
+    }
+
+    document.getElementById('simulateLocation').addEventListener('click', () => {
+      simulate('location', '洛阳', '老师带着学生在诗词世界中探索古都洛阳，学生刚刚点击了地图上的洛阳。当前课堂目标是理解地点怎样承载乡愁、离别与历史兴衰。');
+    });
+    document.getElementById('simulatePerson').addEventListener('click', () => {
+      simulate('person', '李白', '老师带着学生在诗词世界中遇到李白，学生刚刚点击了诗人角色。当前课堂目标是理解诗人的豪放想象、远游经历和作品中的自由气质。');
+    });
+    document.getElementById('simulateEvent').addEventListener('click', () => {
+      simulate('event', '安史之乱', '老师带着学生探索唐代诗人命运，学生刚刚点击了安史之乱事件。当前课堂目标是理解战乱如何改变诗人的生活处境，并进入家国之痛的诗歌表达。');
+    });
+    document.getElementById('openCustomSimulate').addEventListener('click', () => {
+      customSimulateModal.hidden = false;
+      customConceptInput.focus();
+    });
+    document.getElementById('simulateCustom').addEventListener('click', () => {
+      const value = customConceptInput.value.trim();
+      const description = customDescriptionInput.value.trim();
+      if (!value) {
+        setStatus('请输入内容');
+        customConceptInput.focus();
+        return;
+      }
+      simulate(customSimulateType, value, description || `老师带着学生在诗词世界中探索 ${value}，学生刚刚点击了这个课堂元素。请结合当前游戏情境生成适合投屏的讲解。`);
+      customConceptInput.value = '';
+      customDescriptionInput.value = '';
+      customSimulateModal.hidden = true;
+    });
+    optionGrid.addEventListener('click', (event) => {
+      const addCard = event.target.closest('[data-action="add-custom-option"]');
+      if (addCard) {
+        const concept = concepts.get(modalConceptId);
+        const title = addCard.querySelector('[data-custom-field="title"]').value.trim();
+        const instruction = addCard.querySelector('[data-custom-field="instruction"]').value.trim();
+        if (!concept || !title) return;
+        const option = {
+          id: `custom_${Date.now()}`,
+          title,
+          description: instruction || '教师自定义扩展方向。',
+          instruction: instruction || title,
+        };
+        concept.options.push(option);
+        selectedOptionId = option.id;
+        renderOptionGrid();
+        return;
+      }
+      const target = event.target.closest('[data-option-id]');
+      if (!target || target.classList.contains('used')) return;
+      if (selectedOptionId !== target.dataset.optionId) {
+        selectedOptionId = target.dataset.optionId;
+        renderOptionGrid();
+      }
+    });
+    optionGrid.addEventListener('input', (event) => {
+      const card = event.target.closest('[data-option-id]');
+      if (!card) return;
+      const concept = concepts.get(modalConceptId);
+      const option = concept?.options.find((item) => item.id === card.dataset.optionId);
+      if (!option || concept.usedOptions.has(option.id)) return;
+      selectedOptionId = option.id;
+      if (event.target.dataset.optionField === 'title') {
+        option.title = event.target.value;
+      } else if (event.target.dataset.optionField === 'instruction') {
+        option.instruction = event.target.value;
+        option.description = event.target.value;
+      }
+    });
+    customTypeGrid.addEventListener('click', (event) => {
+      const target = event.target.closest('[data-type]');
+      if (!target) return;
+      customSimulateType = target.dataset.type;
+      [...customTypeGrid.querySelectorAll('.type-choice')].forEach((item) => {
+        item.classList.toggle('active', item === target);
+      });
+    });
+    document.getElementById('generateSelectedOption').addEventListener('click', generateSelectedExtension);
+    document.getElementById('closeConfirmModal').addEventListener('click', closeConfirmModal);
+    document.getElementById('cancelCustomSimulate').addEventListener('click', () => {
+      customSimulateModal.hidden = true;
+    });
+    document.getElementById('closeCustomSimulate').addEventListener('click', () => {
+      customSimulateModal.hidden = true;
+    });
+    document.getElementById('cancelDeleteConcept').addEventListener('click', closeDeleteConfirm);
+    document.getElementById('closeDeleteConfirm').addEventListener('click', closeDeleteConfirm);
+    document.getElementById('confirmDeleteConcept').addEventListener('click', deleteSelectedConcept);
+    confirmModal.addEventListener('click', (event) => {
+      if (event.target === confirmModal) closeConfirmModal();
+    });
+    customSimulateModal.addEventListener('click', (event) => {
+      if (event.target === customSimulateModal) customSimulateModal.hidden = true;
+    });
+    deleteConfirmModal.addEventListener('click', (event) => {
+      if (event.target === deleteConfirmModal) closeDeleteConfirm();
+    });
+    lesson.addEventListener('click', (event) => {
+      const image = event.target.closest('img[data-full-src]');
+      if (image) {
+        modalImage.src = image.dataset.fullSrc;
+        imageModal.hidden = false;
+        return;
+      }
+      const button = event.target.closest('[data-action="add-comment"]');
+      if (!button) return;
+      const node = event.target.closest('.lesson-component');
+      const component = components.get(node?.dataset.componentId);
+      const input = node?.querySelector('[data-role="comment-input"]');
+      const value = input?.value.trim();
+      if (!component || !value) return;
+      component.comments.push(value);
+      node.querySelector('[data-role="comment-list"]').insertAdjacentHTML('beforeend', `<div class="comment-item">${escapeHtml(value)}</div>`);
+      input.value = '';
+      setStatus('已添加评论');
+    });
+    document.getElementById('closeImageModal').addEventListener('click', () => {
+      imageModal.hidden = true;
+      modalImage.removeAttribute('src');
+    });
+    imageModal.addEventListener('click', (event) => {
+      if (event.target === imageModal) {
+        imageModal.hidden = true;
+        modalImage.removeAttribute('src');
+      }
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        if (!imageModal.hidden) {
+          imageModal.hidden = true;
+          modalImage.removeAttribute('src');
+        } else if (!confirmModal.hidden) {
+          closeConfirmModal();
+        } else if (!customSimulateModal.hidden) {
+          customSimulateModal.hidden = true;
+        } else if (!deleteConfirmModal.hidden) {
+          closeDeleteConfirm();
+        }
+      }
+    });
+
+    connect();
+  </script>
+</body>
+</html>
